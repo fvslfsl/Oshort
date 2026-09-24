@@ -8,6 +8,17 @@ reload, not just a page refresh.
 
 ---
 
+## 2.1.0 — 2026-09-24
+**Floating panel: search removed.**
+- The search box (and its icon) at the top of the palette is gone; the header now shows a
+  plain "Run a preset" title with the theme and settings buttons. All presets are always
+  listed.
+- Keyboard use still works: the panel takes focus when opened, so **↑/↓** move, **Enter**
+  runs, **Esc** closes. **Ctrl+K** still opens/closes it.
+- Files: `content.js`, `styles.css`, `manifest.json`, `VERSION.md`, `CLAUDE.md`.
+
+---
+
 ## 2.0.0 — 2026-09-23
 **Redesign: dense "pro tool" UI and UX for both the floating panel and the options page.**
 Stored presets, groups, shortcuts and theme are fully compatible, so nothing needs
