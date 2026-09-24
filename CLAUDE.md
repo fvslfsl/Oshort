@@ -117,9 +117,9 @@ files without it import exactly as before (`GROUP_RE` in `options.js` + `content
   button in the panel header (`content.js applyTheme`/`setTheme`).
 
 ## Floating panel = command palette (content.js + styles.css)
-- OS button (draggable) or **Ctrl/⌘+K** opens it; search box auto-focused; ↑/↓ + Enter run,
-  Esc clears then closes, outside click closes. Search keydown/keyup/keypress call
-  `stopPropagation` so OPERA never sees palette typing.
+- OS button (draggable) or **Ctrl/⌘+K** opens it. No search box or header row (removed in
+  2.1.0/2.1.1; theme + settings buttons live in the footer): the panel itself is focused (`tabIndex=-1`); ↑/↓ + Enter run, Esc closes, outside click closes.
+  Panel keydown/keyup/keypress call `stopPropagation` so OPERA never sees palette keys.
 - `content.js` applies the same `regroup()` ordering as the options page (in memory), so
   the palette and positional Alt+N always match the options page.
 - Run card (`showProgress`) shows name, step i/n, a description (never typed values) and a

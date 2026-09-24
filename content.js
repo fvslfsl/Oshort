@@ -58,7 +58,6 @@
     `<svg viewBox="0 0 16 16" width="${size}" height="${size}" fill="${fill ? "currentColor" : "none"}" ` +
     `stroke="${fill ? "none" : "currentColor"}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
   const ICON = {
-    search: SVG('<circle cx="7" cy="7" r="4.3"/><path d="M10.3 10.3L13.5 13.5"/>', 14),
     sun: SVG('<circle cx="8" cy="8" r="2.8"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/>', 14),
     moon: SVG('<path d="M13.2 9.6A5.6 5.6 0 0 1 6.4 2.8a5.6 5.6 0 1 0 6.8 6.8z"/>', 14),
     gear: SVG('<path d="M2.5 5h11M2.5 11h11"/><circle cx="5.5" cy="5" r="1.7" style="fill:var(--os-surface)"/><circle cx="10.5" cy="11" r="1.7" style="fill:var(--os-surface)"/>', 14),
@@ -571,12 +570,11 @@
 
   // ---------- UI ----------
   let presets = [];
-  let root, fab, panel, searchEl, listEl, recEl, capList, recCount, nameInput, saveBtn, toastEl, fileInput;
+  let root, fab, panel, listEl, recEl, capList, recCount, nameInput, saveBtn, toastEl, fileInput;
   let recording = false;
   let captured = [];
-  let query = "";      // palette filter text
   let sel = 0;         // highlighted row in the palette
-  let visible = [];    // presets currently shown (filtered), in display order
+  let visible = [];    // presets currently shown, in display order
 
   function h(tag, cls, html) {
     const e = document.createElement(tag);
@@ -595,23 +593,18 @@
     fab.innerHTML = "<span>OS</span>";
     fab.title = "OPERA Shortcut  (Ctrl+K)";
 
-    // Command-palette panel: search on top, keyboard-driven list, actions below.
+    // Command-palette panel: keyboard-driven list, actions (incl. theme + settings) below.
     panel = h("div", "");
     panel.id = "oshort-panel";
     panel.innerHTML =
-      '<div class="os-head">' +
-        '<span class="os-search-ico">' + ICON.search + '</span>' +
-        '<input class="os-search" type="text" placeholder="Run a preset…" spellcheck="false" autocomplete="off" />' +
-        '<button type="button" class="os-ib os-theme"></button>' +
-        '<button type="button" class="os-ib os-gear" title="Edit presets">' + ICON.gear + '</button>' +
-      '</div>' +
       '<div class="os-list" role="listbox"></div>' +
       '<div class="os-foot">' +
         '<button type="button" class="os-fbtn os-add" title="Record a new preset"><span class="os-rec-ico">' + ICON.dot + '</span>Record</button>' +
         '<button type="button" class="os-fbtn os-upload" title="Run a shared .txt preset without saving it">' + ICON.upload + 'Run file</button>' +
-        '<span class="os-hint"><kbd>↑</kbd><kbd>↓</kbd><kbd>↵</kbd></span>' +
+        '<button type="button" class="os-ib os-theme"></button>' +
+        '<button type="button" class="os-ib os-gear" title="Edit presets">' + ICON.gear + '</button>' +
       '</div>';
-    searchEl = panel.querySelector(".os-search");
+    panel.tabIndex = -1;   // focusable so ↑/↓/Enter/Esc work without a search box
     listEl = panel.querySelector(".os-list");
 
     recEl = h("div", "");
@@ -657,10 +650,9 @@
       e.stopPropagation();   // keep OPERA's own key handlers out of our input
     });
 
-    searchEl.addEventListener("input", () => { query = searchEl.value; sel = 0; renderList(); });
-    searchEl.addEventListener("keydown", onSearchKey);
-    searchEl.addEventListener("keyup", (e) => e.stopPropagation());
-    searchEl.addEventListener("keypress", (e) => e.stopPropagation());
+    panel.addEventListener("keydown", onPanelKey);
+    panel.addEventListener("keyup", (e) => e.stopPropagation());
+    panel.addEventListener("keypress", (e) => e.stopPropagation());
     // Click anywhere outside the panel closes it.
     document.addEventListener("mousedown", (e) => {
       if (root.classList.contains("oshort-open") && !root.contains(e.target)) closePanel();
@@ -699,12 +691,7 @@
       listEl.appendChild(h("div", "os-empty", "No presets yet.<br>Record one, or add them in settings."));
       return;
     }
-    const q = norm(query);
-    visible = presets.filter((p) => !q || norm(p.name + " " + groupOf(p)).includes(q));
-    if (!visible.length) {
-      listEl.appendChild(h("div", "os-empty", "No presets match “" + escapeHtml(query) + "”"));
-      return;
-    }
+    visible = presets.slice();
     if (sel >= visible.length) sel = visible.length - 1;
     if (sel < 0) sel = 0;
     const hasGroups = presets.some((p) => groupOf(p) !== "");
@@ -732,7 +719,7 @@
           if (i !== -1) presets.splice(i, 1);
           store.set(presets);
           renderList();
-          searchEl.focus();
+          panel.focus({ preventScroll: true });
           return;
         }
         runPreset(p);
@@ -745,8 +732,8 @@
     items.forEach((it, k) => it.classList.toggle("os-sel", k === sel));
     if (scroll && items[sel]) items[sel].scrollIntoView({ block: "nearest" });
   }
-  // Palette keys: ↑/↓ move, Enter runs, Esc clears the search or closes.
-  function onSearchKey(e) {
+  // Palette keys: ↑/↓ move, Enter runs, Esc closes.
+  function onPanelKey(e) {
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
       if (visible.length) {
@@ -759,10 +746,9 @@
       if (p) runPreset(p);
     } else if (e.key === "Escape") {
       e.preventDefault();
-      if (query) { query = ""; searchEl.value = ""; sel = 0; renderList(); }
-      else closePanel();
+      closePanel();
     }
-    e.stopPropagation();   // keep OPERA's own key handlers out of our search box
+    e.stopPropagation();   // keep OPERA's own key handlers out of the palette
   }
 
   function escapeHtml(s) {
@@ -784,9 +770,9 @@
 
   function openPanel() {
     root.classList.add("oshort-open");
-    query = ""; searchEl.value = ""; sel = 0;
+    sel = 0;
     renderList();
-    setTimeout(() => { try { searchEl.focus({ preventScroll: true }); } catch (_) {} }, 0);
+    setTimeout(() => { try { panel.focus({ preventScroll: true }); } catch (_) {} }, 0);
   }
   function closePanel() { if (root) root.classList.remove("oshort-open"); }
   function togglePanel() {
