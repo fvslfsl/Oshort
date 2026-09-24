@@ -343,6 +343,29 @@
     }).filter((s) => s !== null);
   }
   const GROUP_RE = /^#+\s*group\s*:\s*(.*)$/i;   // "# group: Front Desk" directive line
+  const SHORTCUT_RE = /^#+\s*shortcut\s*:\s*(.+?)\s*(?:\((\w+)\))?\s*$/i; // "# shortcut: Ctrl+Shift+P (KeyP)"
+  // Rebuild a hotkey object from an exported "# shortcut:" line. The (code) part is what
+  // actually matches the key; without it, letters/digits/Num digits/F-keys are inferred.
+  function parseShortcut(label, code) {
+    const parts = String(label).split("+").map((s) => s.trim()).filter(Boolean);
+    if (parts.length < 2) return null;
+    const mods = parts.slice(0, -1).map((s) => s.toLowerCase());
+    const key = parts[parts.length - 1];
+    if (!code) {
+      if (/^[a-z]$/i.test(key)) code = "Key" + key.toUpperCase();
+      else if (/^\d$/.test(key)) code = "Digit" + key;
+      else if (/^num\s*\d$/i.test(key)) code = "Numpad" + key.slice(-1);
+      else if (/^f\d{1,2}$/i.test(key)) code = key.toUpperCase();
+      else return null;
+    }
+    const hk = { ctrl: mods.includes("ctrl"), alt: mods.includes("alt"), shift: mods.includes("shift"),
+                 meta: mods.includes("meta") || mods.includes("cmd"), code };
+    if (!(hk.ctrl || hk.alt || hk.shift || hk.meta)) return null;
+    const k = code.replace(/^Key/, "").replace(/^Digit/, "").replace(/^Numpad/, "Num ");
+    hk.label = [hk.ctrl && "Ctrl", hk.alt && "Alt", hk.shift && "Shift", hk.meta && "Meta"]
+      .filter(Boolean).concat(k.toUpperCase()).join("+");   // same label buildHotkey() makes
+    return hk;
+  }
   function parsePresetFile(text, fallbackName) {
     const lines = text.replace(/\r\n?/g, "\n").split("\n");
     let name = null, group = "";
@@ -352,6 +375,7 @@
       if (t.startsWith("#")) {
         const gm = GROUP_RE.exec(t);
         if (gm) { group = gm[1].trim(); continue; }
+        if (SHORTCUT_RE.test(t)) continue;   // a one-off run has no shortcut
         if (name === null) name = t.replace(/^#+\s*/, "").trim();
         continue;
       }
@@ -362,7 +386,7 @@
     return out;
   }
   // A file may hold many presets, each starting with a "# Name" line.
-  // A "# group: X" line sets the group of the current preset (not a new preset).
+  // A "# group: X" / "# shortcut: Y" line belongs to the current preset (not a new preset).
   function parseBundle(text) {
     const lines = text.replace(/\r\n?/g, "\n").split("\n");
     const groups = [];
@@ -372,13 +396,21 @@
       if (t.startsWith("#")) {
         const gm = GROUP_RE.exec(t);
         if (gm) { if (cur) cur.group = gm[1].trim(); continue; }
+        const sm = SHORTCUT_RE.exec(t);
+        if (sm) { if (cur) cur.hotkey = parseShortcut(sm[1], sm[2]); continue; }
         cur = { name: t.replace(/^#+\s*/, "").trim() || "Preset", lines: [] }; groups.push(cur); continue;
       }
       if (!cur) { cur = { name: "Preset", lines: [] }; groups.push(cur); }
       cur.lines.push(line);
     }
+    const used = new Set();   // shortcuts must stay unique: first preset wins
     return groups
-      .map((g) => { const o = { name: g.name, steps: parseSteps(g.lines.join("\n")) }; if (g.group) o.group = g.group; return o; })
+      .map((g) => {
+        const o = { name: g.name, steps: parseSteps(g.lines.join("\n")) };
+        if (g.group) o.group = g.group;
+        if (g.hotkey && !used.has(g.hotkey.label)) { o.hotkey = g.hotkey; used.add(g.hotkey.label); }
+        return o;
+      })
       .filter((p) => p.steps.length);
   }
   // First-install defaults bundled in the folder as default-presets.txt.

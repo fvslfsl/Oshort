@@ -8,6 +8,20 @@ reload, not just a page refresh.
 
 ---
 
+## 2.2.0 — 2026-09-24
+**Export keeps custom shortcuts.**
+- Export / Export all now write each preset's custom shortcut as a
+  `# shortcut: Ctrl+Shift+P (KeyP)` line under the name (and group) header.
+- Import reads it back and restores the shortcut, unless another preset already uses that
+  combo (the existing one keeps it). First-install seeding from `default-presets.txt`
+  restores shortcuts too, so Export all → replace `default-presets.txt` carries them to a
+  new PC. The `(KeyP)` part is optional when hand-editing for letters, digits and F-keys.
+- Default Alt+1…9 shortcuts need no line; they follow the exported order as before.
+- Older files without the line import exactly as before.
+- Files: `options.js`, `content.js`, `manifest.json`, `VERSION.md`, `CLAUDE.md`.
+
+---
+
 ## 2.1.1 — 2026-09-24
 **Floating panel: header bar removed.**
 - The top bar of the palette is gone entirely; the list starts at the top. The theme
