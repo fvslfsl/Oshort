@@ -187,29 +187,60 @@ function textToSteps(text) {
 //   <step lines, using the same syntax as the editor>
 // Lines starting with # are comments; the first one is the preset name.
 const GROUP_RE = /^#+\s*group\s*:\s*(.*)$/i;   // "# group: Front Desk" directive line
+const SHORTCUT_RE = /^#+\s*shortcut\s*:\s*(.+?)\s*(?:\((\w+)\))?\s*$/i; // "# shortcut: Ctrl+Shift+P (KeyP)"
+// Rebuild a hotkey object from an exported "# shortcut:" line. The (code) part is what
+// actually matches the key; without it, letters/digits/Num digits/F-keys are inferred.
+function parseShortcut(label, code) {
+  const parts = String(label).split("+").map((s) => s.trim()).filter(Boolean);
+  if (parts.length < 2) return null;
+  const mods = parts.slice(0, -1).map((s) => s.toLowerCase());
+  const key = parts[parts.length - 1];
+  if (!code) {
+    if (/^[a-z]$/i.test(key)) code = "Key" + key.toUpperCase();
+    else if (/^\d$/.test(key)) code = "Digit" + key;
+    else if (/^num\s*\d$/i.test(key)) code = "Numpad" + key.slice(-1);
+    else if (/^f\d{1,2}$/i.test(key)) code = key.toUpperCase();
+    else return null;
+  }
+  const hk = { ctrl: mods.includes("ctrl"), alt: mods.includes("alt"), shift: mods.includes("shift"),
+               meta: mods.includes("meta") || mods.includes("cmd"), code };
+  if (!(hk.ctrl || hk.alt || hk.shift || hk.meta)) return null;
+  const k = code.replace(/^Key/, "").replace(/^Digit/, "").replace(/^Numpad/, "Num ");
+  hk.label = [hk.ctrl && "Ctrl", hk.alt && "Alt", hk.shift && "Shift", hk.meta && "Meta"]
+    .filter(Boolean).concat(k.toUpperCase()).join("+");   // same label buildHotkey() makes
+  return hk;
+}
 function presetToText(p) {
   const grp = p.group ? `# group: ${p.group}\n` : "";
-  return `# ${p.name || "Preset"}\n${grp}${stepsToText(p.steps)}\n`;
+  const hk = p.hotkey && p.hotkey.label ? `# shortcut: ${p.hotkey.label} (${p.hotkey.code})\n` : "";
+  return `# ${p.name || "Preset"}\n${grp}${hk}${stepsToText(p.steps)}\n`;
 }
 // Parse a file that may hold MANY presets (each starts with a "# Name" line).
-// A "# group: X" line sets the group of the current preset (not a new preset).
+// A "# group: X" / "# shortcut: Y" line belongs to the current preset (not a new preset).
 function parseBundle(text, fallbackName) {
   const lines = text.replace(/\r\n?/g, "\n").split("\n");
   const groups = [];
   let cur = null;
-  const hasHeader = lines.some((l) => l.trim().startsWith("#") && !GROUP_RE.test(l.trim()));
+  const hasHeader = lines.some((l) => l.trim().startsWith("#") && !GROUP_RE.test(l.trim()) && !SHORTCUT_RE.test(l.trim()));
   for (const line of lines) {
     const t = line.trim();
     if (t.startsWith("#")) {
       const gm = GROUP_RE.exec(t);
       if (gm) { if (cur) cur.group = gm[1].trim(); continue; }
+      const sm = SHORTCUT_RE.exec(t);
+      if (sm) { if (cur) cur.hotkey = parseShortcut(sm[1], sm[2]); continue; }
       cur = { name: t.replace(/^#+\s*/, "").trim() || "Imported preset", lines: [] }; groups.push(cur); continue;
     }
     if (!cur) { cur = { name: fallbackName || "Imported preset", lines: [] }; groups.push(cur); }
     cur.lines.push(line);
   }
   const out = groups
-    .map((g) => { const o = { name: g.name, steps: textToSteps(g.lines.join("\n")) }; if (g.group) o.group = g.group; return o; })
+    .map((g) => {
+      const o = { name: g.name, steps: textToSteps(g.lines.join("\n")) };
+      if (g.group) o.group = g.group;
+      if (g.hotkey) o.hotkey = g.hotkey;
+      return o;
+    })
     .filter((p) => p.steps.length);
   if (out.length === 1 && !hasHeader && fallbackName) out[0].name = fallbackName;
   return out;
@@ -832,6 +863,7 @@ importFile.addEventListener("change", async () => {
   const files = [...importFile.files];
   importFile.value = ""; // allow re-importing the same file later
   let added = 0;
+  const usedKeys = new Set(presets.filter((p) => p.hotkey).map((p) => p.hotkey.label));
   for (const f of files) {
     let text;
     try { text = await f.text(); } catch (_) { continue; }
@@ -839,6 +871,8 @@ importFile.addEventListener("change", async () => {
     for (const p of parseBundle(text, fallback)) {   // a file may hold one or many
       const np = { name: uniqueName(p.name), steps: p.steps };
       if (p.group) np.group = p.group;
+      // Restore the exported shortcut unless another preset already owns that combo.
+      if (p.hotkey && !usedKeys.has(p.hotkey.label)) { np.hotkey = p.hotkey; usedKeys.add(p.hotkey.label); }
       presets.push(np);
       added++;
     }

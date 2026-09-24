@@ -63,6 +63,7 @@ hold one or many presets (blank line + new `#` starts the next).
 ```
 # Preset Name
 # group: Front Desk           <- optional: puts this preset in a group
+# shortcut: Ctrl+Shift+P (KeyP)  <- optional: custom shortcut (label + KeyboardEvent.code)
 Bookings                      <- click
 @Report Name = pm ac          <- type "pm ac" into "Report Name"
 clear: Reservation Type       <- clear that field
@@ -72,6 +73,10 @@ Download As... (delay 1s)     <- click, then wait 1s
 `(delay 1s)` / `(delay 500ms)` suffix works on any line. An optional
 `# group: <name>` line (right under the `# <name>` header) sets the preset's group;
 files without it import exactly as before (`GROUP_RE` in `options.js` + `content.js`).
+Likewise `# shortcut: <label> (<code>)` (2.2.0+) carries a custom hotkey through Export →
+Import and into `default-presets.txt` seeding (`SHORTCUT_RE`/`parseShortcut`, duplicated in
+both files). Import skips a shortcut another preset already owns; a one-off "Run file"
+ignores it. Positional Alt+N needs no line — it follows the exported order.
 
 ## OPERA / ADF gotchas (all learned the hard way — keep these!)
 1. **No stable IDs / obfuscated classes.** ADF ids are positional (`...:fe8:...`) and
