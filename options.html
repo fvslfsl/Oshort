@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OShort — Presets</title>
+  <style>
+    /* ---------- tokens (dark default, light opt-in) ---------- */
+    :root, :root[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f7f8fa; --surface: #ffffff; --surface-2: #f2f4f7; --surface-3: #e9ecf1;
+      --border: #e3e6eb; --border-strong: #d3d8df;
+      --text: #16181d; --text-2: #545b66; --text-3: #8b929c;
+      --accent: #c8102e; --accent-hover: #a50d26; --accent-text: #c8102e;
+      --accent-soft: rgba(200,16,46,.08); --focus: rgba(200,16,46,.35);
+      --kbd-bg: #f2f4f7; --kbd-border: #d3d8df; --kbd-text: #3a404a;
+      --ok: #1f9d55; --shadow: 0 1px 2px rgba(16,24,40,.06);
+      --shadow-lg: 0 8px 24px rgba(16,24,40,.12);
+      --t-click: #4f6bed; --t-input: #1f9d55; --t-clear: #c27803; --t-key: #8b5cf6;
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0d0f13; --surface: #14171c; --surface-2: #1a1e25; --surface-3: #22272f;
+      --border: #242932; --border-strong: #323843;
+      --text: #e8eaed; --text-2: #a4abb6; --text-3: #6c7480;
+      --accent: #e5484d; --accent-hover: #d13c42; --accent-text: #ff6b70;
+      --accent-soft: rgba(229,72,77,.13); --focus: rgba(229,72,77,.45);
+      --kbd-bg: #1f242c; --kbd-border: #343a45; --kbd-text: #c9ced6;
+      --ok: #3dd68c; --shadow: 0 1px 2px rgba(0,0,0,.4);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,.55);
+      --t-click: #7c93ff; --t-input: #3dd68c; --t-clear: #f5a524; --t-key: #b194ff;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font: 13px/1.45 "Segoe UI Variable Text", "Segoe UI", Inter, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    kbd, code, .mono { font-family: "Cascadia Code", "Cascadia Mono", Consolas, ui-monospace, monospace; }
+    svg { display: block; flex: none; }
+    :focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+
+    /* ---------- buttons ---------- */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px;
+      border: 1px solid var(--border-strong); border-radius: 6px; background: var(--surface);
+      color: var(--text); font-size: 12.5px; font-weight: 500; cursor: pointer; white-space: nowrap;
+    }
+    .btn:hover { background: var(--surface-2); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn.ghost { border-color: transparent; background: transparent; color: var(--text-2); }
+    .btn.ghost:hover { background: var(--surface-2); color: var(--text); }
+    .btn.danger { border-color: transparent; background: transparent; color: var(--accent-text); }
+    .btn.danger:hover { background: var(--accent-soft); }
+    .iconbtn {
+      display: inline-grid; place-items: center; width: 26px; height: 26px; padding: 0;
+      border: 1px solid transparent; border-radius: 6px; background: transparent;
+      color: var(--text-3); cursor: pointer;
+    }
+    .iconbtn:hover { background: var(--surface-2); color: var(--text); }
+    .iconbtn.danger:hover { background: var(--accent-soft); color: var(--accent-text); }
+
+    kbd {
+      display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 4px;
+      border: 1px solid var(--kbd-border); border-bottom-width: 2px; border-radius: 4px;
+      background: var(--kbd-bg); color: var(--kbd-text); font-size: 10.5px; line-height: 1;
+    }
+
+    /* ---------- top bar ---------- */
+    .topbar {
+      position: sticky; top: 0; z-index: 10;
+      display: flex; align-items: center; gap: 14px; height: 52px; padding: 0 20px;
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(10px); border-bottom: 1px solid var(--border);
+    }
+    .brand { display: flex; align-items: center; gap: 9px; flex: none; }
+    .logo {
+      display: grid; place-items: center; width: 26px; height: 26px; border-radius: 7px;
+      background: var(--accent); color: #fff; font-weight: 700; font-size: 11.5px; letter-spacing: .02em;
+    }
+    .title { font-weight: 600; font-size: 14px; }
+    .crumb { color: var(--text-3); }
+    .crumb::before { content: "/"; margin-right: 9px; color: var(--border-strong); }
+    .search {
+      display: flex; align-items: center; gap: 8px; flex: 0 1 360px; height: 30px; padding: 0 8px;
+      border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--text-3);
+    }
+    .search:focus-within { border-color: var(--border-strong); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text); }
+    .search input::placeholder { color: var(--text-3); }
+    .search input::-webkit-search-cancel-button { display: none; }
+    .tb-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+    .saved {
+      display: inline-flex; align-items: center; gap: 4px; margin-right: 6px;
+      color: var(--ok); font-size: 12px; opacity: 0; transition: opacity .2s;
+    }
+    .saved.show { opacity: 1; }
+
+    /* ---------- layout ---------- */
+    .main { padding: 18px 20px 48px; }
+    .groupgrid { display: grid; gap: 14px; align-items: start; }
+    .groupcol { min-width: 0; }
+    .colhead {
+      display: flex; align-items: center; gap: 6px; height: 30px; margin-bottom: 6px; padding: 0 2px 0 4px;
+      border-radius: 6px; transition: background .12s;
+    }
+    .colhead.dragover { background: var(--accent-soft); }
+    .colname {
+      flex: 1; min-width: 0; height: 24px; padding: 0 4px; border: 1px solid transparent; border-radius: 5px;
+      background: transparent; color: var(--text-2); font-size: 11px; font-weight: 600;
+      letter-spacing: .07em; text-transform: uppercase;
+    }
+    .colname:hover:not(:disabled) { border-color: var(--border); }
+    .colname:focus { outline: 0; border-color: var(--border-strong); background: var(--surface); color: var(--text); }
+    .colname:disabled { color: var(--text-3); }
+    .colname::placeholder { color: var(--text-3); }
+    .colcount { color: var(--text-3); font-size: 11px; font-variant-numeric: tabular-nums; }
+    .cards { display: flex; flex-direction: column; gap: 6px; min-height: 40px; padding-bottom: 12px; border-radius: 8px; }
+    .cards.dragover { background: var(--accent-soft); }
+
+    /* ---------- preset card ---------- */
+    .pcard {
+      position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+      box-shadow: var(--shadow); transition: border-color .12s, box-shadow .15s, opacity .15s;
+    }
+    .pcard:hover { border-color: var(--border-strong); }
+    .pcard.open { border-color: var(--border-strong); box-shadow: var(--shadow-lg); }
+    .pcard.dragging { opacity: .45; }
+    .pcard.drop-before::before, .pcard.drop-after::after,
+    .steprow.drop-before::before, .steprow.drop-after::after {
+      content: ""; position: absolute; left: 6px; right: 6px; height: 2px; border-radius: 2px;
+      background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); pointer-events: none;
+    }
+    .pcard.drop-before::before { top: -5px; }
+    .pcard.drop-after::after { bottom: -5px; }
+
+    .pc-head {
+      display: flex; align-items: center; gap: 6px; min-height: 42px; padding: 6px 8px 6px 4px;
+      cursor: pointer; user-select: none;
+    }
+    .grip {
+      display: grid; place-items: center; width: 16px; height: 24px; color: var(--text-3);
+      cursor: grab; opacity: .55; transition: opacity .12s;
+    }
+    .pcard:hover .grip, .steprow:hover .grip { opacity: 1; }
+    .grip:active { cursor: grabbing; }
+    .chev { color: var(--text-3); transition: transform .15s ease; }
+    .pcard.open .chev { transform: rotate(90deg); color: var(--text-2); }
+    .pc-title { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+    .pc-name { font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pc-sum { color: var(--text-3); font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pcard.open .pc-sum { display: none; }
+
+    .hk { display: inline-flex; align-items: center; gap: 2px; flex: none; }
+    .hkbtn {
+      display: inline-flex; align-items: center; gap: 3px; height: 26px; padding: 0 5px;
+      border: 1px solid transparent; border-radius: 6px; background: transparent; cursor: pointer;
+    }
+    .hkbtn:hover { background: var(--surface-2); border-color: var(--border); }
+    .hkbtn.default kbd { opacity: .7; }
+    .hkbtn.custom kbd { border-color: color-mix(in srgb, var(--accent) 55%, var(--kbd-border)); color: var(--accent-text); }
+    .hkbtn.recording { border: 1px dashed var(--accent); background: var(--accent-soft); color: var(--accent-text); font-size: 11.5px; }
+    .hk-none { color: var(--text-3); font-size: 11.5px; }
+
+    /* expanded body */
+    .pc-body { padding: 2px 12px 10px; border-top: 1px solid var(--border); animation: os-in .16s ease; }
+    @keyframes os-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+    .pc-meta { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto; gap: 8px; padding: 10px 0; }
+    .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .field > span { color: var(--text-3); font-size: 10.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+    .input {
+      width: 100%; height: 28px; padding: 0 8px; border: 1px solid var(--border); border-radius: 6px;
+      background: var(--surface-2); color: var(--text);
+    }
+    .input:hover { border-color: var(--border-strong); }
+    .input:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); background: var(--surface); }
+
+    /* steps */
+    .steplist { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 7px; background: var(--surface-2); }
+    .steplist:empty::before { content: "No steps yet — add one below."; padding: 10px 12px; color: var(--text-3); font-size: 12px; }
+    .steprow {
+      position: relative; display: flex; align-items: center; gap: 3px; height: 34px; padding: 0 3px 0 2px;
+      border-top: 1px solid var(--border); transition: background .12s, opacity .12s;
+    }
+    .steprow:first-child { border-top: 0; }
+    .steprow:hover { background: color-mix(in srgb, var(--surface-3) 45%, transparent); }
+    .steprow.dragging { opacity: .4; }
+    .steprow.drop-before::before { top: -1px; }
+    .steprow.drop-after::after { bottom: -1px; }
+    /* step number doubles as the drag handle: number normally, grip on hover */
+    .handle { position: relative; flex: none; width: 18px; height: 24px; }
+    .handle .stepnum, .handle .grip { position: absolute; inset: 0; display: grid; place-items: center; transition: opacity .1s; }
+    .handle .grip { opacity: 0; width: auto; }
+    .steprow:hover .handle .grip { opacity: 1; }
+    .steprow:hover .handle .stepnum { opacity: 0; }
+    .stepnum { color: var(--text-3); font-size: 11px; font-variant-numeric: tabular-nums; }
+    .steptype {
+      flex: none; width: 64px; height: 24px; padding: 0 0 0 4px; border: 1px solid transparent; border-radius: 5px;
+      background: transparent; font-size: 10.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; cursor: pointer;
+    }
+    .steptype:hover { border-color: var(--border-strong); background: var(--surface); }
+    .steptype:focus { outline: 0; border-color: var(--accent); }
+    .steprow[data-type="click"] .steptype { color: var(--t-click); }
+    .steprow[data-type="input"] .steptype { color: var(--t-input); }
+    .steprow[data-type="clear"] .steptype { color: var(--t-clear); }
+    .steprow[data-type="key"]   .steptype { color: var(--t-key); }
+    .steptype option { color: var(--text); background: var(--surface); text-transform: none; }
+    .stepfields { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; }
+    .stepinput, .stepkey {
+      flex: 1; min-width: 0; height: 24px; padding: 0 7px; border: 1px solid transparent; border-radius: 5px;
+      background: transparent; color: var(--text); font-size: 12.5px; text-align: left;
+    }
+    .stepinput::placeholder { color: var(--text-3); }
+    .stepinput:hover, .stepkey:hover { border-color: var(--border-strong); background: var(--surface); }
+    .stepinput:focus { outline: 0; border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .stepkey { cursor: pointer; font-family: "Cascadia Code", Consolas, ui-monospace, monospace; font-size: 11.5px; }
+    .stepkey.recording { border: 1px dashed var(--accent); color: var(--accent-text); }
+    .stepeq { color: var(--text-3); flex: none; }
+    /* delay: just a clock icon when 0; expands on hover/click, stays open when set */
+    .delay {
+      display: inline-flex; align-items: center; gap: 2px; flex: none; height: 24px; padding: 0 4px;
+      border: 1px solid transparent; border-radius: 5px; color: var(--text-3); cursor: pointer;
+    }
+    .delay:hover, .delay:focus-within { border-color: var(--border-strong); background: var(--surface); }
+    .delay.set { color: var(--text-2); }
+    .delay input {
+      width: 26px; border: 0; outline: 0; padding: 0; background: transparent; color: inherit;
+      font-size: 11.5px; text-align: right; font-variant-numeric: tabular-nums; transition: width .12s ease;
+    }
+    .delay input::-webkit-inner-spin-button { display: none; }
+    .delay small { font-size: 11px; }
+    .delay:not(.set):not(:hover):not(:focus-within) input { width: 0; }
+    .delay:not(.set):not(:hover):not(:focus-within) small { display: none; }
+    .steprow .rowdel { width: 22px; height: 22px; opacity: 0; }
+    .steprow:hover .rowdel, .steprow:focus-within .rowdel { opacity: 1; }
+
+    .pc-foot { display: flex; align-items: center; gap: 4px; margin-top: 8px; }
+    .pc-foot .spacer { flex: 1; }
+
+    .texteditor textarea {
+      display: block; width: 100%; min-height: 96px; padding: 8px 10px; resize: vertical;
+      border: 1px solid var(--border); border-radius: 7px; background: var(--surface-2); color: var(--text);
+      font: 12px/1.6 "Cascadia Code", Consolas, ui-monospace, monospace;
+    }
+    .texteditor textarea:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .texthint { margin-top: 5px; color: var(--text-3); font-size: 11px; }
+    .texthint code { padding: 0 4px; border-radius: 3px; background: var(--surface-3); color: var(--text-2); font-size: 10.5px; }
+
+    /* empty / no results */
+    .empty {
+      display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 420px;
+      margin: 72px auto; padding: 32px; text-align: center; border: 1px dashed var(--border-strong); border-radius: 10px;
+    }
+    .empty h2 { margin: 0; font-size: 15px; }
+    .empty p { margin: 0; color: var(--text-2); }
+    .empty .row { display: flex; gap: 8px; margin-top: 4px; }
+    .noresults { padding: 40px 0; text-align: center; color: var(--text-3); }
+
+    /* help */
+    .help { max-width: 760px; margin-top: 28px; border-top: 1px solid var(--border); padding-top: 14px; color: var(--text-2); }
+    .help summary { cursor: pointer; color: var(--text-2); font-weight: 600; list-style: none; display: flex; align-items: center; gap: 6px; }
+    .help summary::-webkit-details-marker { display: none; }
+    .help summary svg { transition: transform .15s; }
+    .help[open] summary svg { transform: rotate(90deg); }
+    .help table { margin-top: 10px; border-collapse: collapse; font-size: 12px; }
+    .help td { padding: 5px 16px 5px 0; vertical-align: top; border-bottom: 1px solid var(--border); }
+    .help td:first-child { white-space: nowrap; }
+    .help code { padding: 1px 5px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text); font-size: 11.5px; }
+    .help p { margin: 12px 0 0; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">OS</span>
+      <span class="title">OShort</span>
+      <span class="crumb">Presets</span>
+    </div>
+    <label class="search" title="Filter presets (press / )">
+      <span id="searchIcon"></span>
+      <input id="search" type="search" placeholder="Filter presets…" autocomplete="off" spellcheck="false" />
+      <kbd>/</kbd>
+    </label>
+    <div class="tb-actions">
+      <span id="saved" class="saved">Saved</span>
+      <button id="importBtn" class="btn" type="button">Import</button>
+      <button id="exportAllBtn" class="btn" type="button">Export all</button>
+      <button id="newBtn" class="btn primary" type="button">New preset</button>
+      <button id="themeToggle" class="iconbtn" type="button" title="Toggle dark / light"></button>
+    </div>
+    <input id="importFile" type="file" accept=".txt,text/plain" multiple hidden />
+  </header>
+
+  <main class="main">
+    <datalist id="oshort-groups"></datalist>
+    <div id="list"></div>
+
+    <details class="help">
+      <summary><span id="helpIcon"></span>Step syntax &amp; tips</summary>
+      <table>
+        <tr><td><code>Bookings</code></td><td>Click the menu, button or option with that visible text.</td></tr>
+        <tr><td><code>@Field label = value</code></td><td>Type a value into the field with that label.</td></tr>
+        <tr><td><code>clear: Field label</code></td><td>Delete the text in that field.</td></tr>
+        <tr><td><code>key: Escape</code></td><td>Press a key or combo, e.g. <code>Enter</code>, <code>Ctrl+Enter</code>.</td></tr>
+        <tr><td><code>… (delay 1s)</code></td><td>Pause after a step. Also <code>(delay 500ms)</code>.</td></tr>
+        <tr><td><code># group: Name</code></td><td>In a .txt file, under the <code># Preset name</code> line, sets the group.</td></tr>
+      </table>
+      <p>Shortcuts: presets get <kbd>Alt</kbd><kbd>1</kbd>…<kbd>Alt</kbd><kbd>9</kbd> by position unless you set a custom one (click the key caps). In OPERA, <kbd>Ctrl</kbd><kbd>K</kbd> opens the preset palette and <kbd>Esc</kbd><kbd>Esc</kbd> stops a running preset. Drag <b>⠿</b> to reorder presets or steps; drop a preset into another column to move it to that group.</p>
+    </details>
+  </main>
+
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+/* OPERA Shortcut (OShort) — floating UI (command palette, recorder, run card).
+   Everything is scoped under #oshort-root so we never touch OPERA's own styles,
+   and OPERA's generic element styles can't leak into ours. */
+
+/* ---------- tokens: dark default, light opt-in ---------- */
+#oshort-root,
+#oshort-root[data-theme="dark"] {
+  --os-surface: #16191f;
+  --os-surface-2: #1d2128;
+  --os-surface-3: #262b33;
+  --os-border: #2a2f38;
+  --os-border-strong: #383e49;
+  --os-text: #e8eaed;
+  --os-text-2: #a4abb6;
+  --os-text-3: #6c7480;
+  --os-accent: #e5484d;
+  --os-accent-hover: #d13c42;
+  --os-accent-text: #ff6b70;
+  --os-accent-soft: rgba(229,72,77,.14);
+  --os-ok: #3dd68c;
+  --os-kbd-bg: #22272f;
+  --os-kbd-border: #3a404b;
+  --os-kbd-text: #c9ced6;
+  --os-shadow: 0 16px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04);
+  --os-t-click: #7c93ff; --os-t-input: #3dd68c; --os-t-clear: #f5a524; --os-t-key: #b194ff;
+}
+#oshort-root[data-theme="light"] {
+  --os-surface: #ffffff;
+  --os-surface-2: #f3f5f8;
+  --os-surface-3: #e9ecf1;
+  --os-border: #e3e6eb;
+  --os-border-strong: #d0d5dd;
+  --os-text: #16181d;
+  --os-text-2: #545b66;
+  --os-text-3: #8b929c;
+  --os-accent: #c8102e;
+  --os-accent-hover: #a50d26;
+  --os-accent-text: #c8102e;
+  --os-accent-soft: rgba(200,16,46,.08);
+  --os-ok: #1f9d55;
+  --os-kbd-bg: #f3f5f8;
+  --os-kbd-border: #d0d5dd;
+  --os-kbd-text: #3a404a;
+  --os-shadow: 0 16px 40px rgba(16,24,40,.18), 0 0 0 1px rgba(16,24,40,.06);
+  --os-t-click: #4f6bed; --os-t-input: #1f9d55; --os-t-clear: #c27803; --os-t-key: #8b5cf6;
+}
+
+/* ---------- reset inside our root ---------- */
+#oshort-root, #oshort-root * {
+  box-sizing: border-box;
+  font-family: "Segoe UI Variable Text", "Segoe UI", Inter, system-ui, sans-serif;
+  letter-spacing: normal; text-transform: none; text-shadow: none;
+}
+#oshort-root button, #oshort-root input {
+  margin: 0; font-size: inherit; line-height: normal; color: inherit;
+  -webkit-appearance: none; appearance: none;
+}
+#oshort-root svg { display: block; flex: none; }
+#oshort-root kbd {
+  display: inline-grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px;
+  border: 1px solid var(--os-kbd-border); border-bottom-width: 2px; border-radius: 4px;
+  background: var(--os-kbd-bg); color: var(--os-kbd-text);
+  font: 10px/1 "Cascadia Code", "Cascadia Mono", Consolas, ui-monospace, monospace;
+}
+
+#oshort-root {
+  position: fixed;
+  z-index: 2147483647;
+  right: 24px;
+  bottom: 24px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--os-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- floating action button ---------- */
+#oshort-fab {
+  position: relative;
+  display: grid; place-items: center;
+  width: 42px; height: 42px; padding: 0;
+  border: 0; border-radius: 12px;
+  background: var(--os-accent); color: #fff;
+  font-weight: 700; font-size: 12.5px; letter-spacing: .03em;
+  box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.18);
+  cursor: pointer; user-select: none;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+#oshort-fab:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.18); }
+#oshort-fab:active { transform: scale(.95); }
+#oshort-root.oshort-open #oshort-fab { background: var(--os-accent-hover); }
+#oshort-root.oshort-dragging #oshort-fab { cursor: grabbing; transform: scale(1.04); }
+/* running: spinning ring around the button */
+#oshort-root.oshort-running #oshort-fab::after {
+  content: ""; position: absolute; inset: -4px; border-radius: 15px;
+  border: 2px solid transparent; border-top-color: var(--os-accent); border-right-color: var(--os-accent);
+  animation: os-spin .8s linear infinite;
+}
+/* recording: pulsing halo */
+#oshort-root.oshort-recording #oshort-fab { animation: os-pulse 1.4s ease-in-out infinite; }
+
+@keyframes os-spin { to { transform: rotate(360deg); } }
+@keyframes os-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(229,72,77,.55), 0 6px 18px rgba(0,0,0,.35); }
+  50% { box-shadow: 0 0 0 7px rgba(229,72,77,0), 0 6px 18px rgba(0,0,0,.35); }
+}
+@keyframes os-pop {
+  from { opacity: 0; transform: translateY(6px) scale(.985); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- shared: small icon button ---------- */
+#oshort-root .os-ib {
+  display: grid; place-items: center; width: 26px; height: 26px; padding: 0;
+  border: 0; border-radius: 6px; background: transparent; color: var(--os-text-3); cursor: pointer;
+}
+#oshort-root .os-ib:hover { background: var(--os-surface-3); color: var(--os-text); }
+
+/* ---------- command palette ---------- */
+#oshort-panel {
+  position: absolute; right: 0; bottom: 54px;
+  width: 320px;
+  display: none; flex-direction: column;
+  background: var(--os-surface);
+  border-radius: 12px;
+  box-shadow: var(--os-shadow);
+  overflow: hidden;
+}
+#oshort-root.oshort-open #oshort-panel { display: flex; animation: os-pop .14s ease; }
+
+#oshort-root .os-head {
+  display: flex; align-items: center; gap: 2px;
+  height: 44px; padding: 0 6px 0 12px;
+  border-bottom: 1px solid var(--os-border);
+}
+#oshort-root .os-search-ico { color: var(--os-text-3); margin-right: 6px; }
+#oshort-root .os-search {
+  flex: 1; min-width: 0; height: 30px; padding: 0;
+  border: 0; outline: 0; background: transparent;
+  color: var(--os-text); font-size: 13.5px;
+}
+#oshort-root .os-search::placeholder { color: var(--os-text-3); }
+
+#oshort-root .os-list { max-height: 340px; overflow-y: auto; padding: 4px; scrollbar-width: thin; }
+#oshort-root .os-group {
+  display: flex; justify-content: space-between;
+  padding: 8px 8px 3px; color: var(--os-text-3);
+  font-size: 10.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase;
+}
+#oshort-root .os-group span:last-child { font-variant-numeric: tabular-nums; letter-spacing: 0; }
+#oshort-root .os-item {
+  position: relative; display: flex; align-items: center; gap: 8px;
+  height: 30px; padding: 0 4px 0 10px;
+  border-radius: 6px; cursor: pointer; color: var(--os-text-2);
+}
+#oshort-root .os-item.os-sel { background: var(--os-surface-3); color: var(--os-text); }
+#oshort-root .os-item.os-sel::before {
+  content: ""; position: absolute; left: 0; top: 7px; bottom: 7px; width: 2px; border-radius: 2px;
+  background: var(--os-accent);
+}
+#oshort-root .os-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+#oshort-root .os-keys { display: inline-flex; gap: 2px; }
+#oshort-root .os-keys kbd { opacity: .75; }
+#oshort-root .os-item.os-sel .os-keys kbd { opacity: 1; }
+#oshort-root .os-keys.os-custom kbd { color: var(--os-accent-text); }
+#oshort-root .os-del { width: 22px; height: 22px; opacity: 0; }
+#oshort-root .os-item:hover .os-del { opacity: 1; }
+#oshort-root .os-del:hover { background: var(--os-accent-soft); color: var(--os-accent-text); }
+#oshort-root .os-empty { padding: 22px 12px; text-align: center; color: var(--os-text-3); font-size: 12.5px; }
+
+#oshort-root .os-foot {
+  display: flex; align-items: center; gap: 4px;
+  height: 40px; padding: 0 8px;
+  border-top: 1px solid var(--os-border);
+  background: var(--os-surface-2);
+}
+#oshort-root .os-fbtn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 26px; padding: 0 9px;
+  border: 1px solid var(--os-border-strong); border-radius: 6px;
+  background: var(--os-surface); color: var(--os-text);
+  font-size: 12px; font-weight: 500; cursor: pointer;
+}
+#oshort-root .os-fbtn:hover { background: var(--os-surface-3); }
+#oshort-root .os-rec-ico { color: var(--os-accent); }
+#oshort-root .os-hint { display: inline-flex; gap: 2px; margin-left: auto; opacity: .8; }
+
+/* ---------- recorder ---------- */
+#oshort-rec {
+  position: absolute; right: 0; bottom: 54px;
+  width: 320px;
+  display: none; flex-direction: column;
+  background: var(--os-surface); color: var(--os-text);
+  border-radius: 12px; box-shadow: var(--os-shadow);
+  overflow: hidden;
+}
+#oshort-root.oshort-recording #oshort-rec { display: flex; animation: os-pop .14s ease; }
+#oshort-root.oshort-recording #oshort-panel { display: none; }
+
+#oshort-root .os-rec-head {
+  display: flex; align-items: center; gap: 8px;
+  height: 42px; padding: 0 6px 0 12px;
+  border-bottom: 1px solid var(--os-border);
+}
+#oshort-root .os-rec-head b { font-weight: 600; font-size: 13px; }
+#oshort-root .os-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--os-accent); box-shadow: 0 0 0 3px var(--os-accent-soft);
+  animation: os-blink 1.2s ease-in-out infinite;
+}
+@keyframes os-blink { 50% { opacity: .35; } }
+#oshort-root .os-rec-count { flex: 1; color: var(--os-text-3); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+#oshort-root .os-cap {
+  list-style: none; margin: 0; padding: 4px;
+  max-height: 220px; overflow-y: auto; counter-reset: os-step; scrollbar-width: thin;
+}
+#oshort-root .os-cap:empty::before {
+  content: "Click menus, type into fields and press keys — each action is captured in order.";
+  display: block; padding: 14px 10px; color: var(--os-text-3); font-size: 12px; text-align: center;
+}
+#oshort-root .os-cap li {
+  display: flex; align-items: center; gap: 8px;
+  height: 28px; padding: 0 8px; border-radius: 6px;
+  counter-increment: os-step; animation: os-pop .14s ease;
+}
+#oshort-root .os-cap li::before {
+  content: counter(os-step); width: 14px; text-align: right;
+  color: var(--os-text-3); font-size: 11px; font-variant-numeric: tabular-nums;
+}
+#oshort-root .os-cap li:hover { background: var(--os-surface-2); }
+#oshort-root .os-tag {
+  flex: none; width: 40px;
+  font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+}
+#oshort-root .os-t-click { color: var(--os-t-click); }
+#oshort-root .os-t-input { color: var(--os-t-input); }
+#oshort-root .os-t-clear { color: var(--os-t-clear); }
+#oshort-root .os-t-key { color: var(--os-t-key); }
+#oshort-root .os-cap-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; }
+#oshort-root .os-cap-text i { font-style: normal; color: var(--os-text-3); }
+
+#oshort-root .os-rec-foot {
+  display: flex; gap: 6px; padding: 8px;
+  border-top: 1px solid var(--os-border); background: var(--os-surface-2);
+}
+#oshort-root .os-rec-name {
+  flex: 1; min-width: 0; height: 30px; padding: 0 9px;
+  border: 1px solid var(--os-border-strong); border-radius: 6px;
+  background: var(--os-surface); color: var(--os-text); font-size: 12.5px; outline: 0;
+}
+#oshort-root .os-rec-name:focus { border-color: var(--os-accent); box-shadow: 0 0 0 3px var(--os-accent-soft); }
+#oshort-root .os-rec-name::placeholder { color: var(--os-text-3); }
+#oshort-root .os-save {
+  height: 30px; padding: 0 14px;
+  border: 0; border-radius: 6px;
+  background: var(--os-accent); color: #fff;
+  font-size: 12.5px; font-weight: 600; cursor: pointer;
+}
+#oshort-root .os-save:hover { background: var(--os-accent-hover); }
+#oshort-root .os-save:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ---------- toast / run progress card ---------- */
+#oshort-toast {
+  position: absolute; right: 0; bottom: 54px;
+  width: max-content; min-width: 200px; max-width: 320px;
+  padding: 10px 12px;
+  display: none;
+  background: var(--os-surface); color: var(--os-text);
+  border-radius: 10px; box-shadow: var(--os-shadow);
+  font-size: 12.5px;
+}
+#oshort-toast.os-show { display: block; animation: os-pop .16s ease; }
+/* the panel and the toast share the same spot; the panel wins */
+#oshort-root.oshort-open #oshort-toast,
+#oshort-root.oshort-recording #oshort-toast { display: none; }
+
+#oshort-root .os-t-row { display: flex; align-items: center; gap: 8px; }
+#oshort-root .os-t-ico { color: var(--os-text-2); }
+#oshort-toast.os-ok .os-t-ico { color: var(--os-ok); }
+#oshort-toast.os-err { box-shadow: var(--os-shadow), inset 3px 0 0 var(--os-accent); }
+#oshort-toast.os-err .os-t-ico { color: var(--os-accent-text); }
+#oshort-root .os-t-msg { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+#oshort-root .os-t-count { color: var(--os-text-3); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+#oshort-root .os-t-sub {
+  margin: 3px 0 0 22px; color: var(--os-text-2); font-size: 12px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+#oshort-root .os-t-bar {
+  height: 3px; margin: 9px 0 0; border-radius: 3px;
+  background: var(--os-surface-3); overflow: hidden;
+}
+#oshort-root .os-t-bar i {
+  display: block; height: 100%; width: 0;
+  background: var(--os-accent); border-radius: 3px;
+  transition: width .3s ease;
+}
+#oshort-root .os-t-hint { display: flex; align-items: center; gap: 3px; margin-top: 7px; color: var(--os-text-3); font-size: 11px; }
+#oshort-toast.os-run { width: 280px; }
+#oshort-root .os-spin {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid var(--os-surface-3); border-top-color: var(--os-accent);
+  animation: os-spin .7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #oshort-root *, #oshort-root *::before, #oshort-root *::after { animation: none !important; transition: none !important; }
+}
