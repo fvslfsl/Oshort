@@ -593,20 +593,16 @@
     fab.innerHTML = "<span>OS</span>";
     fab.title = "OPERA Shortcut  (Ctrl+K)";
 
-    // Command-palette panel: header, keyboard-driven list, actions below.
+    // Command-palette panel: keyboard-driven list, actions (incl. theme + settings) below.
     panel = h("div", "");
     panel.id = "oshort-panel";
     panel.innerHTML =
-      '<div class="os-head">' +
-        '<span class="os-title">Run a preset</span>' +
-        '<button type="button" class="os-ib os-theme"></button>' +
-        '<button type="button" class="os-ib os-gear" title="Edit presets">' + ICON.gear + '</button>' +
-      '</div>' +
       '<div class="os-list" role="listbox"></div>' +
       '<div class="os-foot">' +
         '<button type="button" class="os-fbtn os-add" title="Record a new preset"><span class="os-rec-ico">' + ICON.dot + '</span>Record</button>' +
         '<button type="button" class="os-fbtn os-upload" title="Run a shared .txt preset without saving it">' + ICON.upload + 'Run file</button>' +
-        '<span class="os-hint"><kbd>↑</kbd><kbd>↓</kbd><kbd>↵</kbd></span>' +
+        '<button type="button" class="os-ib os-theme"></button>' +
+        '<button type="button" class="os-ib os-gear" title="Edit presets">' + ICON.gear + '</button>' +
       '</div>';
     panel.tabIndex = -1;   // focusable so ↑/↓/Enter/Esc work without a search box
     listEl = panel.querySelector(".os-list");

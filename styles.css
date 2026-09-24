@@ -128,14 +128,6 @@
 }
 #oshort-root.oshort-open #oshort-panel { display: flex; animation: os-pop .14s ease; }
 
-#oshort-root .os-head {
-  display: flex; align-items: center; gap: 2px;
-  height: 44px; padding: 0 6px 0 12px;
-  border-bottom: 1px solid var(--os-border);
-}
-#oshort-root .os-title {
-  flex: 1; min-width: 0; color: var(--os-text-2); font-size: 13px; font-weight: 600;
-}
 #oshort-root #oshort-panel:focus { outline: none; }
 
 #oshort-root .os-list { max-height: 340px; overflow-y: auto; padding: 4px; scrollbar-width: thin; }
@@ -176,11 +168,11 @@
   height: 26px; padding: 0 9px;
   border: 1px solid var(--os-border-strong); border-radius: 6px;
   background: var(--os-surface); color: var(--os-text);
-  font-size: 12px; font-weight: 500; cursor: pointer;
+  font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap;
 }
 #oshort-root .os-fbtn:hover { background: var(--os-surface-3); }
 #oshort-root .os-rec-ico { color: var(--os-accent); }
-#oshort-root .os-hint { display: inline-flex; gap: 2px; margin-left: auto; opacity: .8; }
+#oshort-root .os-foot .os-theme { margin-left: auto; }
 
 /* ---------- recorder ---------- */
 #oshort-rec {

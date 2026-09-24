@@ -8,6 +8,15 @@ reload, not just a page refresh.
 
 ---
 
+## 2.1.1 — 2026-09-24
+**Floating panel: header bar removed.**
+- The top bar of the palette is gone entirely; the list starts at the top. The theme
+  (sun/moon) and settings buttons moved into the footer, on the right. The ↑/↓/↵ hint was dropped to make room (the
+  keys still work).
+- Files: `content.js`, `styles.css`, `manifest.json`, `VERSION.md`, `CLAUDE.md`.
+
+---
+
 ## 2.1.0 — 2026-09-24
 **Floating panel: search removed.**
 - The search box (and its icon) at the top of the palette is gone; the header now shows a
