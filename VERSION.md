@@ -8,6 +8,16 @@ reload, not just a page refresh.
 
 ---
 
+## 2.2.1 — 2026-09-25
+**Fix: recorder overwrote an earlier step when the same field was used twice.**
+- Typing into a field that was already typed into earlier in the recording used to change
+  that earlier step's value instead of adding a new step, so the first value was lost.
+  Now only a correction right away (the previous step is the same field) updates in place;
+  using the field again after other steps records a new step.
+- Files: `content.js`, `manifest.json`, `VERSION.md`, `CLAUDE.md`.
+
+---
+
 ## 2.2.0 — 2026-09-24
 **Export keeps custom shortcuts.**
 - Export / Export all now write each preset's custom shortcut as a

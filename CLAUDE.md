@@ -134,7 +134,8 @@ ignores it. Positional Alt+N needs no line — it follows the exported order.
 
 ## Recorder (in the floating panel)
 "Record" captures, in order: clicks (by visible text), typed field values
-(on `change`, matched by label), and **action keystrokes** (Esc/Enter/Tab/arrows/
+(on `change`, matched by label; a change only updates the previous step when that step
+is the same field, so re-using a field later in the flow adds a new step), and **action keystrokes** (Esc/Enter/Tab/arrows/
 F-keys/Ctrl-Alt-Meta combos via `keydown`). Plain typing is a Type step, not per-key.
 
 ## Storage & defaults
