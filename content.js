@@ -883,13 +883,13 @@
     const label = fieldLabelText(el);
     if (!label) return;
     const value = readFieldValue(el);
-    // Update an existing step for the same field; otherwise add a new one.
-    for (let i = captured.length - 1; i >= 0; i--) {
-      if (isInputStep(captured[i]) && norm(captured[i].label) === norm(label)) {
-        captured[i].value = value;
-        renderCaptured();
-        return;
-      }
+    // Re-editing the field you just typed into (a correction) updates that step. Typing
+    // into the same field again after other steps is a new step — the earlier one stays.
+    const last = captured[captured.length - 1];
+    if (isInputStep(last) && norm(last.label) === norm(label)) {
+      last.value = value;
+      renderCaptured();
+      return;
     }
     if (value === "" || value === false) return; // ignore untouched/empty fields
     pushStep({ type: "input", label, value });
