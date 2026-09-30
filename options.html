@@ -99,6 +99,7 @@
       color: var(--ok); font-size: 12px; opacity: 0; transition: opacity .2s;
     }
     .saved.show { opacity: 1; }
+    .sync-err { margin-right: 6px; color: var(--accent-text); font-size: 12px; white-space: nowrap; }
 
     /* ---------- layout ---------- */
     .main { padding: 18px 20px 48px; }
@@ -286,6 +287,7 @@
       <kbd>/</kbd>
     </label>
     <div class="tb-actions">
+      <span id="syncErr" class="sync-err" hidden>Not syncing</span>
       <span id="saved" class="saved">Saved</span>
       <button id="importBtn" class="btn" type="button">Import</button>
       <button id="exportAllBtn" class="btn" type="button">Export all</button>

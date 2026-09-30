@@ -1043,6 +1043,9 @@
       saved = await loadBundledDefaults();
       if (!saved || !saved.length) saved = DEFAULT_PRESETS.slice();
       await store.set(saved);
+      // Mark it as the seed so background.js doesn't upload it over presets already
+      // synced to this Google account from another PC (it pulls those in instead).
+      try { chrome.storage.local.set({ oshort_seed: JSON.stringify(saved) }); } catch (_) {}
     }
     presets = regroup(saved);
     theme = await getTheme();

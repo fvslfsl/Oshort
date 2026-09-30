@@ -24,8 +24,9 @@ Remind the user a manifest version change needs a full **reload** at
 - `bridge.js` — runs in the PAGE world (`"world":"MAIN"`). Publishes OPERA/ADF's busy
   state to `document.documentElement[data-oshort-ready]` = "1"/"0". Needed because an
   isolated content script can't see `window.AdfPage`.
-- `background.js` — service worker; only opens the options page (toolbar click / a
-  message from the panel gear).
+- `background.js` — service worker; opens the options page (toolbar click / a message
+  from the panel gear) and mirrors presets + theme between `storage.local` and
+  `storage.sync` (see Storage).
 - `options.html` / `options.js` — the options page: structured per-preset editor,
   import/export, editable shortcuts.
 - `styles.css` — floating panel/recorder/toast styling.
@@ -40,7 +41,7 @@ Remind the user a manifest version change needs a full **reload** at
   events, reads/writes `chrome.storage.local`.
 - **MAIN world** (`bridge.js`): reads ADF internals, writes readiness to a DOM attr the
   isolated script polls. Requires Chrome 111+ for `"world":"MAIN"`.
-- **Service worker** (`background.js`): opens options page.
+- **Service worker** (`background.js`): opens options page; local ↔ sync mirroring.
 
 ## Step model
 A preset = `{ name, steps[], hotkey?, group? }`. `group` (optional string) puts the
@@ -146,9 +147,19 @@ F-keys/Ctrl-Alt-Meta combos via `keydown`). Plain typing is a Type step, not per
   `default-presets.txt` (via `web_accessible_resources`) and seeds it (falls back to a
   built-in single default). To ship presets to a new PC: Export all → replace
   `default-presets.txt` → copy folder → Load unpacked.
-- Renaming/moving the folder changes the unpacked extension ID → storage resets → but
-  it re-seeds from `default-presets.txt`. For a stable ID across renames, add a `"key"`
-  to the manifest (not currently done).
+- `manifest.json` has a `"key"` (2.3.0+), so the extension ID is fixed
+  (`chbohaoomjdpbcngcdfelgdocfgocfpi`) on every PC and across folder renames. Don't
+  change or remove it — that changes the ID and cuts the PC off from its storage + sync.
+- **Sync across PCs (2.3.0+):** pages still read/write only `storage.local` (the
+  working copy). `background.js` mirrors it to `chrome.storage.sync` (Chrome's per-Google-
+  account sync): local changes push after a 2 s debounce (sync allows ~120 writes/min);
+  sync changes from other PCs are pulled into local, which the existing local
+  `onChanged` listeners pick up. Presets are chunked (`oshort_presets_meta` = `{n, ts}` +
+  `oshort_presets_0..n-1` JSON string pieces, each <8 KB; 100 KB total). Local keys
+  `oshort_sync_last` (JSON both sides last agreed on), `oshort_seed` (what content.js
+  seeded — never uploaded, so a new PC pulls instead of clobbering the account),
+  `oshort_sync_error` (failed push; options page shows "Not syncing"). Reconcile rules
+  in `reconcilePresets()`; if both sides changed, sync wins. Theme syncs too.
 
 ## Options page details
 - Sticky top bar (filter `/`, Import, Export all, New preset, theme). Group columns (max 4),

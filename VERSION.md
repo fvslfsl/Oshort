@@ -8,6 +8,26 @@ reload, not just a page refresh.
 
 ---
 
+## 2.3.0 — 2026-09-30
+**Presets sync across PCs through your Google account.**
+- Presets and the dark/light theme now sync to every PC where Chrome is signed into the
+  same Google account with sync (incl. Extensions) turned on. Edits reach the other PCs
+  within seconds to a minute; open pages update live. Without Chrome sign-in it works
+  exactly as before, just without syncing.
+- `background.js` mirrors `chrome.storage.local` ↔ `chrome.storage.sync`: pushes are
+  debounced 2 s (sync's write-rate limit), presets are split into <8 KB chunks
+  (`oshort_presets_meta` + `oshort_presets_0..n`), 100 KB total for all presets.
+- A first-install seed from `default-presets.txt` is never uploaded, so a new PC pulls the
+  account's presets instead of overwriting them. If both sides changed, the account wins.
+- Options page shows "Not syncing" in the top bar if a push fails (e.g. over 100 KB).
+- `manifest.json` now has a `"key"`, so the extension ID is the same on every PC
+  (`chbohaoomjdpbcngcdfelgdocfgocfpi`) — required for sync. ⚠️ The ID changes once:
+  **Export all before updating**, then Import once on one PC after updating.
+- Files: `background.js`, `content.js`, `options.js`, `options.html`, `manifest.json`,
+  `VERSION.md`, `CLAUDE.md`.
+
+---
+
 ## 2.2.1 — 2026-09-25
 **Fix: recorder overwrote an earlier step when the same field was used twice.**
 - Typing into a field that was already typed into earlier in the recording used to change

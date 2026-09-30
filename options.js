@@ -906,6 +906,18 @@ chrome.storage.onChanged.addListener((changes, area) => {
   }
 });
 
+// background.js records a failed push to Chrome sync (usually the 100 KB account limit).
+const SYNC_ERROR_KEY = "oshort_sync_error";
+const syncErrEl = document.getElementById("syncErr");
+function showSyncError(msg) {
+  syncErrEl.hidden = !msg;
+  syncErrEl.title = msg ? "Presets are saved on this PC but not syncing to your other PCs: " + msg : "";
+}
+chrome.storage.local.get(SYNC_ERROR_KEY, (o) => showSyncError(o && o[SYNC_ERROR_KEY]));
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && changes[SYNC_ERROR_KEY]) showSyncError(changes[SYNC_ERROR_KEY].newValue);
+});
+
 loadTheme().then(applyTheme);
 applyTheme();
 load().then(() => { regroup(); render(); });
