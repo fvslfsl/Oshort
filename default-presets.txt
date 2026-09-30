@@ -1,0 +1,123 @@
+# PIN
+# group: FO
+# shortcut: Alt+1 (Digit1)
+@PIN = 123123123123
+Login
+
+# Manage Reservation
+# group: FO
+# shortcut: Alt+2 (Digit2)
+OPERA Cloud
+Bookings
+Reservations
+Manage Reservation
+@confirmation number = 
+
+# PM Report
+# group: REPORT
+# shortcut: Alt+F1 (F1)
+Reports
+Manage Reports
+@Report Name = pm ac
+ResetSearch
+Search (delay 1s)
+gipmbyroom (delay 1s)
+Download As... (delay 1s)
+Delimited
+Delimited data
+Download
+
+# Journal Report
+# group: REPORT
+# shortcut: Alt+F3 (F3)
+Reports
+Manage Reports
+key: Enter
+@Report Name = journ
+Search
+Journal by Cashier and Transaction Code
+Edit Report Parameters (delay 1s)
+
+# AR Account
+# group: AR
+# shortcut: Alt+Q (KeyQ)
+OPERA Cloud
+Financials
+Accounts Receivables
+Manage Accounts Receivables
+@Account Name = 
+
+# ALIPAY
+# group: AR
+# shortcut: Alt+A (KeyA)
+Make Payment
+@Method = AAL
+@Amount = 
+
+# COMM
+# group: AR
+# shortcut: Alt+Z (KeyZ)
+Make Payment
+@Method = ACC
+@Amount = 
+
+# WECHAT
+# group: AR
+# shortcut: Alt+W (KeyW)
+Make Payment
+@Method = awc
+@Amount = 
+
+# VISA
+# group: AR
+# shortcut: Alt+V (KeyV)
+Make Payment
+@Method = avc
+@Amount = 
+
+# MASTER
+# group: AR
+# shortcut: Alt+M (KeyM)
+Make Payment
+@Method = amc
+@Amount = 
+
+# POST AMEX
+# group: AR
+# shortcut: Alt+X (KeyX)
+Make Payment
+@Method = aax
+@Amount = 
+
+# Direct Bill Transfer
+# group: AR
+# shortcut: Alt+D (KeyD)
+Financials
+Accounts Receivables
+Direct Bill Transfer
+@PIN = 123123123123
+Login
+Search
+
+# TOUCHNGO
+# group: AR
+# shortcut: Alt+T (KeyT)
+Make Payment
+@Method = ATNG
+@Amount =  (delay 1s)
+
+# Bank Transfer
+# group: AR
+# shortcut: Alt+B (KeyB)
+Make Payment
+@Method = abt
+@Amount =  
+
+# CC Transfer
+# shortcut: Alt+BACKQUOTE (Backquote)
+OPERA Cloud
+Financials
+Accounts Receivables
+Credit Card Transfer
+@PIN = 123123123123
+Login
