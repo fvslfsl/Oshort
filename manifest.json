@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
   "name": "OPERA Shortcut (OShort)",
-  "version": "2.2.1",
+  "version": "2.3.0",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv5fgtYAQNBVunA3BwxM9o7ATjJ3ufGjtZDbpQD8qDl8CVS3kCP9NE0Jq94/y1CmU1RZqpwcaQcNVkFOQFIhFr4Rr6GGEOvZe5A2qdGyy1B6PeA6ZJ7X1qJWHEaYOkEgsY6lytqiiAz8DfUJ4HwCNkPqQTVje+J9YklAVCOMknhG2gIddUNThSnP7DhYHdXRm8QgzRIpOnIIb+iopslQr5oL3wP/wj5Q/ACQ/Qk46PklNBClMavhx2othTMna9AFdt30jwvYAFwYutQkQgwd7w1f5Jn1+Z5JoqTW35idXSOV/u7CyW0K6M0PKuM18mtuwfflqP0i5yqTijSY8Q22nNwIDAQAB",
   "description": "Floating action button that replays a preset series of menu clicks in OPERA Cloud.",
   "permissions": ["storage"],
   "icons": {
